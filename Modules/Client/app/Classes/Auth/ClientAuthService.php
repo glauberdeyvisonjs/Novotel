@@ -1,26 +1,17 @@
 <?php
-// app/Http/Controllers/Staff/AuthController.php
 
-namespace App\Http\Controllers\Staff;
+namespace Modules\Client\Classes\Auth;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class StaffAuthController extends Controller
+class ClientAuthService
 {
     /**
-     * @return Factory|View|Application
+     * @param Request $request
+     * @return RedirectResponse
      */
-    public function showLoginForm(): Factory|Application|View
-    {
-        return view('staff.auth.login');
-    }
-
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -33,13 +24,13 @@ class StaffAuthController extends Controller
             'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
         ]);
 
-        if (Auth::attempt(array_merge($credentials, ['type' => 'staff']))) {
+        if (Auth::attempt(array_merge($credentials, ['type' => 'client']))) {
             $request->session()->regenerate();
-            return redirect()->intended('/staff/dashboard');
+            return redirect()->intended('/client/dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Credenciais inválidas para staff',
+            'email' => 'Credenciais inválidas. Por favor, tente novamente.',
         ]);
     }
 
@@ -52,6 +43,6 @@ class StaffAuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/staff/login');
+        return redirect('/client/login');
     }
 }
